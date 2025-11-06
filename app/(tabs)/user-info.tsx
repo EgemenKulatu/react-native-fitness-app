@@ -7,10 +7,28 @@ export default function UserInfoScreen() {
   const [age, setAge] = useState('');
   const [weight, setWeight] = useState('');
   const [height, setHeight] = useState('');
+  const [plan, setPlan] = useState('');
+
+  const sendDataToAI = async () => {
+  try {
+    const response = await fetch('http://10.0.2.2:3001/api/ai-plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trainingType, age, weight, height }),
+    });
+
+    const data = await response.json();
+    setPlan(data.plan); // Write to state to display the response on the screen
+  } catch (error) {
+    console.error('AI fetch error:', error);
+  }
+};
+
 
   const isFormComplete = age && weight && height;
 
   return (
+    
     <View style={styles.container}>
       <Text style={styles.title}>Let's get to know you</Text>
       <Text style={styles.subtitle}>Training type: {trainingType}</Text>
@@ -38,11 +56,16 @@ export default function UserInfoScreen() {
         value={height}
         onChangeText={setHeight}
       />
+      {plan !== '' && (
+  <Text style={{ marginTop: 20, padding: 10 }}>{plan}</Text>
+)}
 
       {isFormComplete && (
-        <Button title="Next" onPress={() => console.log({ trainingType, age, weight, height })} />
-      )}
+  <Button title="Next" onPress={sendDataToAI} />
+)}
+
     </View>
+    
   );
 }
 
